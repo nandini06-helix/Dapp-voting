@@ -1,0 +1,165 @@
+body {
+  background: #dbeafe;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 40px;
+  padding-right: 20px;
+  transition: margin-left 0.3s ease;
+  color: #111827;
+}
+
+.dashboard.sidebar-open {
+  margin-left: 125px;
+  padding-left: 20px;
+  align-items: flex-start;
+}
+
+.dashboard.sidebar-closed {
+  margin-left: 120px;
+  padding-left: 20px;
+  align-items: center;
+}
+
+.heading {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+}
+
+.three-columns {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 0 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.three-columns.collapsed-gap {
+  gap: 10px;
+}
+
+.drop_container {
+  background-color: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+  max-width: 350px;
+  width: 100%;
+  flex: 1 1 300px;
+}
+
+.column-title {
+  text-align: center;
+  font-size: 1.3rem;
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.drop_card {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  background: #3b82f6;
+  border-radius: 1em;
+  transition: background 0.3s ease;
+}
+
+.drop_card:hover {
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.drop_content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.drop_img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.about {
+  line-height: 1.2;
+  color: #f9fafb;
+}
+
+.name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.profession {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 400px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .drop_container {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 768px) {
+  .drop_container {
+    flex: 1 1 100%;
+  }
+
+  .dashboard.sidebar-open {
+    align-items: center;
+    margin-left: 0;
+  }
+}

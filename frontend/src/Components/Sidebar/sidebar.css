@@ -1,0 +1,52 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100vh;
+  background-color: #2c3e50;
+  color: white;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.sidebar {
+  z-index: 1000; /* already set, keep or increase if needed */
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.toggle-btn {
+  padding: 20px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #ecf0f1;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.nav-links a {
+  color: #ecf0f1;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.nav-links a:hover {
+  background-color: #34495e;
+}
+
+.nav-links a.active {
+  background-color: #1abc9c;
+}
