@@ -30,8 +30,7 @@ const ConnectWallet = () => {
       const provider = new BrowserProvider(window.ethereum);
       const contract = new Contract(contractAddress, VotingABI.abi, provider);
 
-      const owner = await contract.owner(); // ✅ correct
-      // const owner = await contract.getOwner(); // ✅ Correct
+      const owner = await contract.owner();
 
 
       const isAdmin = owner.toLowerCase() === accounts[0].toLowerCase();
