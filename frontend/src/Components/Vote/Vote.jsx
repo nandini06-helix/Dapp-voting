@@ -1,32 +1,107 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./vote.css";
-
-const posts = ["GS Secretary", "GS Sports", "GS Cultural"];
-const contestants = [
-  { id: 1, name: "Rajesh", symbol: "🔷" },
-  { id: 2, name: "Ramesh", symbol: "🔶" },
-  { id: 3, name: "Suresh", symbol: "⭐" },
-];
+import { BrowserProvider, Contract } from "ethers";
+import VotingABI from "../../abi/Voting.json"; 
+const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 export default function Vote() {
-  const [current, setCurrent] = useState(0);
+  const [posts, setPosts] = useState([]);
+  const [candidatesMap, setCandidatesMap] = useState({});
   const [votes, setVotes] = useState({});
+  const [current, setCurrent] = useState(0);
   const [isReview, setIsReview] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleVote = (post, candidateId) =>
-    setVotes({ ...votes, [post]: candidateId });
+  // Fetch posts and candidates from blockchain
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const provider = new BrowserProvider(window.ethereum);
+  //       const contract = new Contract(contractAddress, VotingABI.abi, provider);
 
-  const next = () => {
-    if (!votes[posts[current]]) {
-      alert("Your vote is important to us. Please pick a candidate before continuing.");
-      return;
-    }
-    if (current < posts.length - 1) {
-      setCurrent(current + 1);
-    } else {
-      setIsReview(true);
+  //       const positions = await contract.getPositions();
+  //       const map = {};
+
+  //       for (const pos of positions) {
+  //         const count = await contract.getCandidateCount(pos);
+  //         const candidates = [];
+  //         for (let i = 1; i <= count; i++) {
+  //           const [name] = await contract.getCandidate(pos, i);
+  //           candidates.push({ id: i, name, symbol: "⭐" }); // You can later fetch symbol if stored
+  //         }
+  //         map[pos] = candidates;
+  //       }
+
+  //       setPosts(positions);
+  //       setCandidatesMap(map);
+  //       setLoading(false);
+  //     } catch (err) {
+  //       console.error("Failed to fetch voting data:", err);
+  //       alert("❌ Failed to load candidates from blockchain.");
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const provider = new BrowserProvider(window.ethereum);
+      const contract = new Contract(contractAddress, VotingABI.abi, provider);
+
+      // 🔹 Fetch dynamic positions
+      const positions = await contract.getPositions();
+      const map = {};
+
+      for (const pos of positions) {
+        const count = await contract.getCandidateCount(pos);
+        const candidates = [];
+        for (let i = 1; i <= count; i++) {
+          const [name] = await contract.getCandidate(pos, i);
+          candidates.push({ id: i, name, symbol: "⭐" });
+        }
+        map[pos] = candidates;
+      }
+
+      setPosts(positions);
+      setCandidatesMap(map);
+      setLoading(false);
+
+      // 🔹 Check if user is admin (owner of contract)
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const ownerAddress = await contract.owner(); // Your contract should expose getOwner()
+
+      if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
+        setIsAdmin(true);
+      }
+
+    } catch (err) {
+      console.error("Failed to fetch voting data:", err);
+      alert("❌ Failed to load candidates from blockchain.");
     }
   };
+
+  fetchData();
+}, []);
+
+  // const handleVote = (post, candidateId) => {
+  //   setVotes(prev => ({ ...prev, [post]: candidateId }));
+  // };
+ const handleVote = (post, candidateId) => {
+  if (isAdmin) return; // Admin can't vote
+  setVotes(prev => ({ ...prev, [post]: candidateId }));
+};
+
+ const next = () => {
+  if (current < posts.length - 1) {
+    setCurrent(current + 1);
+  } else {
+    setIsReview(true);
+  }
+};
+
 
   const prev = () => {
     if (isReview) {
@@ -35,22 +110,59 @@ export default function Vote() {
       setCurrent(current - 1);
     }
   };
+const handleSubmit = async () => {
+  try {
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new Contract(contractAddress, VotingABI.abi, signer);
 
-  const handleSubmit = () => {
-    console.table(votes);
-    alert("✅  Your vote has been submitted. Thank you!");
-  };
+    // 🧪 DEBUG: Check on-chain voting status
+    const votingStarted = await contract.votingStarted();
+    const votingEnded = await contract.votingEnded();
+    const start = Number(await contract.votingStartTime());
+    const end = Number(await contract.votingEndTime());
+    const now = Math.floor(Date.now() / 1000);
 
+    console.log("🧪 Voting Status Debug:");
+    console.log("votingStarted:", votingStarted);
+    console.log("votingEnded:", votingEnded);
+    console.log("start:", start, new Date(start * 1000).toLocaleString());
+    console.log("end:", end, new Date(end * 1000).toLocaleString());
+    console.log("now:", now, new Date(now * 1000).toLocaleString());
+
+    // Add this condition to prevent failed transaction
+    if (!votingStarted || votingEnded || now < start || now > end) {
+      alert("Voting is not active right now.");
+      return;
+    }
+
+    for (const post of posts) {
+      const candidateId = votes[post];
+      if (candidateId) {
+        const tx = await contract.vote(post, candidateId);
+        await tx.wait();
+        console.log(`✅ Voted for ${post}: Candidate ${candidateId}`);
+      }
+    }
+
+    alert("✅ Your vote has been recorded on the blockchain.");
+  } catch (err) {
+    console.error("❌ Voting failed:", err);
+    alert("❌ Voting failed. Check console for details.");
+  }
+};
+
+  if (loading) return <p>Loading voting interface...</p>;
+  // if (isAdmin) return <p className="error-msg">❌ Admin cannot participate in voting.</p>;
   return (
     <div className="vote-box">
       {isReview ? (
         <>
           <h1 className="post-title">Review your choices</h1>
-          <h2 className="subheading">You voted for:</h2>
           <ul className="review-list">
             {posts.map(post => {
               const candId = votes[post];
-              const cand = contestants.find(c => c.id === candId);
+              const cand = candidatesMap[post]?.find(c => c.id === candId);
               return (
                 <li key={post}>
                   <strong>{post}:</strong> {cand ? `${cand.name} ${cand.symbol}` : "Not selected"}
@@ -64,38 +176,39 @@ export default function Vote() {
           <h1 className="post-title">{posts[current]}</h1>
           <h2 className="subheading">Select your candidate</h2>
           <form className="candidate-list">
-            {contestants.map(c => (
+            {candidatesMap[posts[current]]?.map(c => (
               <label key={c.id} className="radio-option">
                 <span className="candidate-name">{c.name}</span>
                 <span className="candidate-symbol">{c.symbol}</span>
-                <input
+                {/* <input
                   type="radio"
                   name={posts[current]}
                   value={c.id}
                   checked={votes[posts[current]] === c.id}
                   onChange={() => handleVote(posts[current], c.id)}
                   className="vote-radio"
-                />
+                /> */}
+                <input
+                type="radio"
+                name={posts[current]}
+                value={c.id}
+                checked={votes[posts[current]] === c.id}
+                onChange={() => handleVote(posts[current], c.id)}
+                className="vote-radio"
+                disabled={isAdmin}
+                 />
+
               </label>
             ))}
           </form>
         </>
       )}
 
-
       <div className="carousel-controls">
-        <button
-          className="change__btn change__btn--left"
-          onClick={prev}
-          disabled={current === 0 && !isReview}
-        >
+        <button className="change__btn change__btn--left" onClick={prev} disabled={current === 0 && !isReview}>
           &larr;
         </button>
-        <button
-          className="change__btn change__btn--right"
-          onClick={next}
-          disabled={isReview}
-        >
+        <button className="change__btn change__btn--right" onClick={next} disabled={isReview}>
           &rarr;
         </button>
       </div>
@@ -108,11 +221,17 @@ export default function Vote() {
         </div>
       )}
 
-      {isReview && (
+      {/* {isReview && (
         <button className="submit-btn" onClick={handleSubmit}>
           Submit Vote
         </button>
-      )}
+      )} */}
+      {isReview && !isAdmin && (
+  <button className="submit-btn" onClick={handleSubmit}>
+    Submit Vote
+  </button>
+)}
+
     </div>
   );
 }

@@ -5,6 +5,8 @@ contract VotingSystem {
     address public immutable owner;
     bool public votingStarted;
     bool public votingEnded;
+    uint public votingStartTime;
+    uint public votingEndTime;
 
     struct Candidate {
         uint id;
@@ -29,7 +31,7 @@ contract VotingSystem {
     mapping(address => Voter) private voters;
 
     event CandidateAdded(string position, uint candidateId, string name);
-    event VotingStarted();
+    event VotingStarted(uint startTime, uint endTime);
     event Voted(address indexed voter, string position, uint candidateId);
     event VotingEnded();
     event WinnerDeclared(string position, string name, uint votes);
@@ -41,6 +43,8 @@ contract VotingSystem {
 
     modifier votingActive() {
         require(votingStarted && !votingEnded, "Voting is not active");
+        require(block.timestamp >= votingStartTime, "Voting hasn't started yet");
+        require(block.timestamp <= votingEndTime, "Voting has ended");
         _;
     }
 
@@ -48,6 +52,9 @@ contract VotingSystem {
         owner = msg.sender;
     }
 
+    function getOwner() external view returns (address) {
+        return owner;
+    }
 
     function toLower(string memory str) internal pure returns (string memory) {
         bytes memory bStr = bytes(str);
@@ -78,14 +85,23 @@ contract VotingSystem {
         emit CandidateAdded(position, p.candidateCount, _name);
     }
 
+    function setVotingPeriod(uint _start, uint _end) external onlyOwner {
+        require(!votingStarted, "Voting already started");
+        require(_start < _end, "Invalid voting period");
+
+        votingStartTime = _start;
+        votingEndTime = _end;
+    }
+
     function startVoting() external onlyOwner {
         require(positionKeys.length > 0, "No positions to vote on");
         for (uint i = 0; i < positionKeys.length; i++) {
             require(positions[positionKeys[i]].candidateCount >= 2, "Each position must have at least 2 candidates");
         }
+        require(votingStartTime > 0 && votingEndTime > votingStartTime, "Voting period not set");
         votingStarted = true;
         votingEnded = false;
-        emit VotingStarted();
+        emit VotingStarted(votingStartTime, votingEndTime);
     }
 
     function vote(string calldata position, uint candidateId) external votingActive {
@@ -150,7 +166,6 @@ contract VotingSystem {
         votes = maxVotes;
     }
 
-   
     function getWinnersByPosition(string calldata position) external view returns (string[] memory, uint) {
         string memory lower = toLower(position);
         bytes32 key = keccak256(abi.encodePacked(lower));

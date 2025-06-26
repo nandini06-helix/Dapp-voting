@@ -5,7 +5,6 @@ import user_icon from '../Assets/person.png';
 import email_icon from '../Assets/email.png';
 import logo from '../Assets/logo.png';
 import password_icon from '../Assets/password.png';
-
 const LoginSignup = () => {
     const [loginValues, setLoginValues] = useState({ email: "", password: "" });
     const [signupValues, setSignupValues] = useState({
@@ -33,7 +32,8 @@ const LoginSignup = () => {
 
         if (loginValues.email === dummyEmail && loginValues.password === dummyPassword) {
         localStorage.setItem('authToken', "dummyToken123");
-        navigate('/dashboard');
+        // navigate('/dashboard');
+        navigate("/connect-wallet");
         return;
         }
 
@@ -54,7 +54,8 @@ const LoginSignup = () => {
 
         if (res.ok) {
             localStorage.setItem('authToken', data.token);
-            navigate('/dashboard');
+            // navigate('/dashboard');
+            navigate("/connect-wallet");
         } else {
             alert(data.message || "Login failed");
         }
@@ -83,6 +84,7 @@ const LoginSignup = () => {
             });
 
             const data = await res.json();
+            console.log("Register API response:", res.status, data);
 
             if (res.ok) {
                 alert("Registration successful, please log in");
@@ -92,6 +94,7 @@ const LoginSignup = () => {
             }
         } catch (error) {
             alert("Signup error");
+             console.error("Signup error:", error);
         }
     };
 
@@ -187,5 +190,8 @@ const LoginSignup = () => {
         </div>
     );
 };
-
+//to redirect after successful login
+// This component handles both login and signup functionality
+// import { useNavigate } from 'react-router-dom';
+// const navigate = useNavigate();
 export default LoginSignup;
