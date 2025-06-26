@@ -1,0 +1,30 @@
+const express = require("express");
+const router = express.Router();
+const { utils } = require("ethers");
+
+// Replace with your admin wallet address
+const ADMIN_ADDRESS = "0x123...abc".toLowerCase();
+
+router.post("/login", (req, res) => {
+  const { address, signature } = req.body;
+  const message = "Login to Decentralized Voting App";
+
+  try {
+    const signer = utils.verifyMessage(message, signature);
+
+    if (signer.toLowerCase() !== address.toLowerCase()) {
+      return res.status(401).json({ error: "Signature invalid" });
+    }
+
+    const role = address.toLowerCase() === ADMIN_ADDRESS ? "admin" : "voter";
+
+    return res.json({
+      role,
+      authToken: "dummy-token", // optional
+    });
+  } catch (err) {
+    return res.status(500).json({ error: "Login failed" });
+  }
+});
+
+module.exports = router;

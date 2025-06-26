@@ -10,10 +10,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@nomicfoundation/hardhat-verify": "^2.0.14",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "hardhat": "^2.24.1",
     "mongoose": "^8.15.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.24.3"
   }
 }
