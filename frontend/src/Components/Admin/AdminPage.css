@@ -7,13 +7,14 @@ body, html {
 
 .admin-page {
   max-width: 700px;
-  margin: 40px auto;
+  /* margin: 40px auto; */
   padding: 30px;
   border-radius: 16px;
   background: #f9f9f9;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
-  overflow: visible; /* or auto */
+  overflow: visible; 
+  
 }
 
 .admin-page h2 {
@@ -39,10 +40,11 @@ body, html {
 }
 
 .admin-page textarea {
-  resize: vertical;
+  resize: vertical;         
+  overflow-y: auto;         
   min-height: 80px;
+  max-height: 300px;
 }
-
 .admin-page input[type="file"] {
   padding: 8px;
 }
