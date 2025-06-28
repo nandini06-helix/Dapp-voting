@@ -7,15 +7,15 @@ body, html {
 
 .admin-page {
   max-width: 700px;
-  /* margin: 40px auto; */
   padding: 30px;
   border-radius: 16px;
   background: #f9f9f9;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
-  overflow: visible; 
-  
+  overflow-x: hidden; /* ✅ prevents horizontal scrollbar */
+  overflow-y: visible;
 }
+
 
 .admin-page h2 {
   text-align: center;
@@ -37,17 +37,44 @@ body, html {
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
+  background-color: white;
+  color: #333;
+  width: 100%;
+}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0);
 }
 
+
 .admin-page textarea {
-  resize: vertical;         
-  overflow-y: auto;         
+  resize: vertical;
+  overflow-y: auto;
   min-height: 80px;
-  max-height: 300px;
+  /* No max-height for unlimited dragging */
 }
+
+/* To align label+input vertically */
+.admin-page form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Optional for placeholder color */
+.admin-page input::placeholder,
+.admin-page textarea::placeholder {
+  color: #888;
+}
+
 .admin-page input[type="file"] {
   padding: 8px;
+  background-color: white;  /* White background */
+  color: #000;              /* Black text */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
 }
+
 
 .admin-page img {
   margin-top: 10px;

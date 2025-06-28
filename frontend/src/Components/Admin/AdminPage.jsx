@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { useNavigate } from "react-router-dom";
 import VotingABI from "../../abi/Voting.json";
@@ -9,12 +9,18 @@ const predefinedPositions = ["President", "Vice President", "Secretary", "Treasu
 
 export default function AdminPage() {
   const [form, setForm] = useState({
-    name: "", position: "", agenda: "", image: null, imagePreview: null
+    name: "",
+    position: "",
+    agenda: "",
+    image: null,
+    imagePreview: null,
   });
+
   const [times, setTimes] = useState({ start: "", end: "" });
   const [onChainTimes, setOnChainTimes] = useState({ start: null, end: null });
   const [votingStarted, setVotingStarted] = useState(false);
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,10 +48,21 @@ export default function AdminPage() {
     };
     fetchData();
   }, []);
+
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setForm(prev => ({ ...prev, image: file, imagePreview: URL.createObjectURL(file) }));
+      setForm((prev) => ({
+        ...prev,
+        image: file,
+        imagePreview: URL.createObjectURL(file),
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        image: null,
+        imagePreview: null,
+      }));
     }
   };
 
@@ -61,9 +78,15 @@ export default function AdminPage() {
       const tx = await contract.addCandidate(form.position, form.name);
       await tx.wait();
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
       alert("Candidate added!");
-      setForm({ name: "", position: "", agenda: "", image: null, imagePreview: null });
+      setForm({
+        name: "",
+        position: "",
+        agenda: "",
+        image: null,
+        imagePreview: null,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = null;
     } catch (err) {
       console.error("Error adding candidate:", err);
       alert("Failed to add candidate. Please try again.");
@@ -98,7 +121,7 @@ export default function AdminPage() {
       const tx = await contract.startVoting();
       await tx.wait();
       alert("✅ Voting started!");
-      setVotingStarted(true); // ✅ update local state
+      setVotingStarted(true);
     } catch (err) {
       console.error("❌ Failed to start voting:", err);
       alert("Failed to start voting.");
@@ -123,34 +146,47 @@ export default function AdminPage() {
   const votingHasEnded = onChainTimes.end && now >= onChainTimes.end;
 
   return (
-    <div className="admin-page" style={{ marginTop: "200px" }}>
+    <div className="admin-page">
       <h2>Add Candidate</h2>
       <form onSubmit={onCandidateSubmit}>
         <input
           type="text"
           placeholder="Name"
           value={form.name}
-          onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
           required
         />
         <select
           value={form.position}
-          onChange={e => setForm(prev => ({ ...prev, position: e.target.value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, position: e.target.value }))}
           required
         >
           <option value="">-- Select Position --</option>
           {predefinedPositions.map((pos, idx) => (
-            <option key={idx} value={pos}>{pos}</option>
+            <option key={idx} value={pos}>
+              {pos}
+            </option>
           ))}
         </select>
         <textarea
           rows="4"
           placeholder="Agenda"
           value={form.agenda}
-          onChange={e => setForm(prev => ({ ...prev, agenda: e.target.value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, agenda: e.target.value }))}
         />
-        <input type="file" accept="image/*" onChange={onFileChange} />
-        {form.imagePreview && <img src={form.imagePreview} alt="Preview" style={{ width: "120px" }} />}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={onFileChange}
+        />
+        {form.imagePreview && (
+          <img
+            src={form.imagePreview}
+            alt="Preview"
+            style={{ width: "120px" }}
+          />
+        )}
         <button type="submit">Add Candidate</button>
       </form>
 
@@ -163,7 +199,7 @@ export default function AdminPage() {
           <input
             type="datetime-local"
             value={times.start}
-            onChange={e => setTimes(prev => ({ ...prev, start: e.target.value }))}
+            onChange={(e) => setTimes((prev) => ({ ...prev, start: e.target.value }))}
             required
           />
         </label>
@@ -172,7 +208,7 @@ export default function AdminPage() {
           <input
             type="datetime-local"
             value={times.end}
-            onChange={e => setTimes(prev => ({ ...prev, end: e.target.value }))}
+            onChange={(e) => setTimes((prev) => ({ ...prev, end: e.target.value }))}
             required
           />
         </label>
@@ -184,21 +220,22 @@ export default function AdminPage() {
       <h2>Voting Controls</h2>
       <button
         onClick={handleStartVoting}
-        disabled={votingStarted || now < onChainTimes.start} style={{ marginTop: 20  ,margin:"5px 5px"}}
+        disabled={votingStarted || now < onChainTimes.start}
+        style={{ marginTop: 20, margin: "5px 5px" }}
       >
         Start Voting
       </button>
       <button
         onClick={handleEndVoting}
-        disabled={!votingHasEnded} style={{ marginTop: 20  ,margin:"5px 5px"}}
+        disabled={!votingHasEnded}
+        style={{ marginTop: 20, margin: "5px 5px" }}
       >
         End Voting
       </button>
 
-      <button onClick={() => navigate("/dashboard")} style={{ marginTop: 20  ,margin:"5px 5px"}}>
+      <button onClick={() => navigate("/dashboard")} style={{ marginTop: 20, margin: "5px 5px" }}>
         Back to Dashboard
       </button>
     </div>
   );
 }
-
