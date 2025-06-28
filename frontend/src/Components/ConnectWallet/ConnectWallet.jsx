@@ -1,8 +1,6 @@
 
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./ConnectWallet.css"; // if you have styling
-// import { ethers } from "ethers";
 import { BrowserProvider, Contract } from "ethers";
 import VotingABI from "../../abi/Voting.json";
 
@@ -25,13 +23,10 @@ const ConnectWallet = () => {
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
 
     if (accounts.length > 0) {
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // const contract = new ethers.Contract(contractAddress, VotingABI.abi, provider);
       const provider = new BrowserProvider(window.ethereum);
       const contract = new Contract(contractAddress, VotingABI.abi, provider);
 
-      const owner = await contract.owner(); // ✅ correct
-      // const owner = await contract.getOwner(); // ✅ Correct
+      const owner = await contract.owner();
 
 
       const isAdmin = owner.toLowerCase() === accounts[0].toLowerCase();

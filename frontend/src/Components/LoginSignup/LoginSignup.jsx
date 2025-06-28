@@ -190,8 +190,4 @@ const LoginSignup = () => {
         </div>
     );
 };
-//to redirect after successful login
-// This component handles both login and signup functionality
-// import { useNavigate } from 'react-router-dom';
-// const navigate = useNavigate();
 export default LoginSignup;
