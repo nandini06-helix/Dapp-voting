@@ -1,5 +1,4 @@
 body {
-  background: #dbeafe;
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
 }
@@ -10,22 +9,13 @@ body {
   justify-content: flex-start;
   align-items: center;
   min-height: 100vh;
-  padding-top: 40px;
-  padding-right: 20px;
-  transition: margin-left 0.3s ease;
+  box-sizing: border-box;
   color: #111827;
-}
+  background: transparent;
 
-.dashboard.sidebar-open {
-  margin-left: 125px;
-  padding-left: 20px;
-  align-items: flex-start;
-}
-
-.dashboard.sidebar-closed {
-  margin-left: 120px;
-  padding-left: 20px;
-  align-items: center;
+  width: calc(100% - 200px);   /* Account for sidebar width */
+  margin-left: 200px;          /* Push content right of sidebar */
+  padding: 20px 20px 0 20px;   /* Top, Right, Bottom, Left */
 }
 
 .heading {
@@ -40,15 +30,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 0 20px;
+  flex-wrap: nowrap;
+  gap: 30px;
   width: 100%;
-  max-width: 1200px;
-}
-
-.three-columns.collapsed-gap {
-  gap: 10px;
+  max-width: 1100px;
+  margin-top: 20px;
 }
 
 .drop_container {
@@ -129,7 +115,7 @@ body {
 .modal {
   background: white;
   border-radius: 10px;
-  padding: 20px;
+  padding: 15px;
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
@@ -146,7 +132,6 @@ body {
   cursor: pointer;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .drop_container {
     flex: 1 1 45%;
@@ -158,8 +143,14 @@ body {
     flex: 1 1 100%;
   }
 
-  .dashboard.sidebar-open {
+  .dashboard {
+    margin-left: 0 !important;
+    width: 100% !important;
     align-items: center;
-    margin-left: 0;
+  }
+
+  .three-columns {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

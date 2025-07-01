@@ -22,14 +22,14 @@ const candidates = [
 
 const headings = ["GS Secretary", "GS Sports", "GS Culturals"];
 
-function Dashboard({ sidebarOpen }) {
+function Dashboard() {
   const [selectedUser, setSelectedUser] = useState(null);
 
   return (
-    <div className={`dashboard ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <div className="dashboard">
       <h1 className="heading">Welcome to the Dashboard</h1>
 
-      <div className={`three-columns ${sidebarOpen ? '' : 'collapsed-gap'}`}>
+      <div className="three-columns">
         {headings.map((title, colIndex) => (
           <div key={colIndex} className="drop_container">
             <h2 className="column-title">{title}</h2>
@@ -52,7 +52,8 @@ function Dashboard({ sidebarOpen }) {
         <div className="modal-overlay">
           <div className="modal">
             <button className="close-btn" onClick={() => setSelectedUser(null)}>✖</button>
-            <DetailedCard user={selectedUser} />
+            <DetailedCard user={selectedUser} onClose={() => setSelectedUser(null)} />
+
           </div>
         </div>
       )}

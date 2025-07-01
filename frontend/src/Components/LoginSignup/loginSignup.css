@@ -8,7 +8,7 @@
 }
 
 body{
-    background-color: #c9d6ff;
+    /* background-color: #c9d6ff; */
     background: linear-gradient(); /*to right, #403434, #2b2f3a*/
     display: flex;
     align-items: center;
