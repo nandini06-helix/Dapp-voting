@@ -1,9 +1,8 @@
+
 import React, { useEffect, useState } from "react";
-// import { ethers } from "ethers";
 import { BrowserProvider, Contract } from "ethers";
-
 import VotingABI from "../../abi/Voting.json";
-
+import "./Result.css";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -18,7 +17,6 @@ export default function Results() {
         const provider = new BrowserProvider(window.ethereum);
         const contract = new Contract(contractAddress, VotingABI.abi, provider);
 
-
         const ended = await contract.votingEnded();
         setVotingEnded(ended);
 
@@ -29,7 +27,14 @@ export default function Results() {
 
         for (let pos of positions) {
           const [winners, voteCount] = await contract.getWinnersByPosition(pos);
-          resultsData.push({ position: pos, winners, voteCount: voteCount.toString() });
+
+          // For demo, use placeholder image (replace with image from contract if available)
+          resultsData.push({
+            position: pos,
+            winners,
+            voteCount: voteCount.toString(),
+            image: "https://source.unsplash.com/160x160/?person&sig=" + Math.floor(Math.random() * 1000)
+          });
         }
 
         setResults(resultsData);
@@ -44,23 +49,35 @@ export default function Results() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Election Results</h2>
+    <div className="results-wrapper">
+      <h1 className="results-heading">Results of Elections</h1>
+
       {!votingEnded ? (
-        <p className="text-gray-500">⏳ Voting is still ongoing. Please check back later.</p>
+        <p className="status-message">⏳ Voting is still ongoing. Please check back later.</p>
       ) : loading ? (
-        <p className="text-blue-500">Loading results...</p>
+        <p className="status-message">Loading results...</p>
       ) : (
-        <div className="space-y-4">
+        <div className="card-container">
           {results.map((r, idx) => (
-            <div key={idx} className="bg-gray-100 rounded-lg p-4 shadow">
-              <h3 className="text-lg font-semibold">📌 {r.position}</h3>
-              <p className="text-sm">🗳️ Total Votes: {r.voteCount}</p>
-              <ul className="list-disc list-inside mt-2">
-                {r.winners.map((name, i) => (
-                  <li key={i}>🏆 {name}</li>
-                ))}
-              </ul>
+            <div className="flip-card" key={idx}>
+              <div className="flip-card-inner">
+                {/* Front */}
+                <div className="flip-card-front">
+                  <h2>{r.position}</h2>
+                  <p>Hover to see winner</p>
+                </div>
+
+                {/* Back */}
+                <div className="flip-card-back">
+                  {r.winners.map((name, i) => (
+                    <div key={i} style={{ marginBottom: "15px" }}>
+                      <h2>{name}</h2>
+                      <h3>{r.position}</h3>
+                      <p>🗳️ Total Votes: {r.voteCount}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>

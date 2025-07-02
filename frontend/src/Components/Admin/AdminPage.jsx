@@ -123,7 +123,7 @@ export default function AdminPage() {
   const votingHasEnded = onChainTimes.end && now >= onChainTimes.end;
 
   return (
-    <div className="admin-page" style={{ marginTop: "200px" }}>
+    <div className="admin-page">
       <h2>Add Candidate</h2>
       <form onSubmit={onCandidateSubmit}>
         <input

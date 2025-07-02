@@ -1,4 +1,3 @@
-
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaBars,
@@ -65,10 +64,12 @@ function Sidebar({ isOpen, toggleSidebar }) {
 
       {/* ✅ Logout button */}
       {wallet && (
-        <div className="logout-btn" onClick={handleLogout}>
+       < div className="bottom-actions">
+        <button className="bottom-btn" onClick={handleLogout}>
           <FaSignOutAlt />
           {isOpen && <span>Logout</span>}
-        </div>
+        </button>
+      </div>
       )}
     </div>
   );

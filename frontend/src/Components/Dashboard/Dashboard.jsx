@@ -49,13 +49,13 @@ function Dashboard({ sidebarOpen }) {
       </div>
 
       {selectedUser && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <button className="close-btn" onClick={() => setSelectedUser(null)}>✖</button>
-            <DetailedCard user={selectedUser} />
-          </div>
-        </div>
-      )}
+  <div className="modal-overlay">
+    <div className="modal">
+      <DetailedCard user={selectedUser} onClose={() => setSelectedUser(null)} />
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

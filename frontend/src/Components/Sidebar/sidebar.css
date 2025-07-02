@@ -50,3 +50,22 @@
 .nav-links a.active {
   background-color: #1abc9c;
 }
+.bottom-actions {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.bottom-btn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
