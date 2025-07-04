@@ -42,10 +42,18 @@ export default function AdminPage() {
     };
     fetchData();
   }, []);
+
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setForm(prev => ({ ...prev, image: file, imagePreview: URL.createObjectURL(file) }));
+      setForm(prev => ({
+        ...prev,
+        image: file,
+        imagePreview: URL.createObjectURL(file)
+      }));
+    } else {
+      // Clear preview if file is removed/canceled
+      setForm(prev => ({ ...prev, image: null, imagePreview: null }));
     }
   };
 
@@ -98,7 +106,7 @@ export default function AdminPage() {
       const tx = await contract.startVoting();
       await tx.wait();
       alert("✅ Voting started!");
-      setVotingStarted(true); // ✅ update local state
+      setVotingStarted(true);
     } catch (err) {
       console.error("❌ Failed to start voting:", err);
       alert("Failed to start voting.");
@@ -149,8 +157,14 @@ export default function AdminPage() {
           value={form.agenda}
           onChange={e => setForm(prev => ({ ...prev, agenda: e.target.value }))}
         />
-        <input type="file" accept="image/*" onChange={onFileChange} />
-        {form.imagePreview && <img src={form.imagePreview} alt="Preview" style={{ width: "120px" }} />}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onFileChange}
+        />
+        {form.imagePreview && (
+          <img src={form.imagePreview} alt="Preview" style={{ width: "120px" }} />
+        )}
         <button type="submit">Add Candidate</button>
       </form>
 
@@ -184,21 +198,25 @@ export default function AdminPage() {
       <h2>Voting Controls</h2>
       <button
         onClick={handleStartVoting}
-        disabled={votingStarted || now < onChainTimes.start} style={{ marginTop: 20  ,margin:"5px 5px"}}
+        disabled={votingStarted || now < onChainTimes.start}
+        style={{ marginTop: 20, margin: "5px 5px" }}
       >
         Start Voting
       </button>
       <button
         onClick={handleEndVoting}
-        disabled={!votingHasEnded} style={{ marginTop: 20  ,margin:"5px 5px"}}
+        disabled={!votingHasEnded}
+        style={{ marginTop: 20, margin: "5px 5px" }}
       >
         End Voting
       </button>
 
-      <button onClick={() => navigate("/dashboard")} style={{ marginTop: 20  ,margin:"5px 5px"}}>
+      <button
+        onClick={() => navigate("/dashboard")}
+        style={{ marginTop: 20, margin: "5px 5px" }}
+      >
         Back to Dashboard
       </button>
     </div>
   );
 }
-
