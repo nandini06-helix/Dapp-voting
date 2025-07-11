@@ -5,6 +5,8 @@ import user_icon from '../Assets/person.png';
 import email_icon from '../Assets/email.png';
 import logo from '../Assets/logo.png';
 import password_icon from '../Assets/password.png';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const LoginSignup = () => {
     const [loginValues, setLoginValues] = useState({ email: "", password: "" });
     const [signupValues, setSignupValues] = useState({
@@ -15,6 +17,10 @@ const LoginSignup = () => {
         password: "",
         confirmPassword: ""
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showLoginPassword, setShowLoginPassword] = useState(false);
 
     const navigate = useNavigate();
 
@@ -31,41 +37,37 @@ const LoginSignup = () => {
         const dummyPassword = "123456";
 
         if (loginValues.email === dummyEmail && loginValues.password === dummyPassword) {
-        localStorage.setItem('authToken', "dummyToken123");
-        // navigate('/dashboard');
-        navigate("/connect-wallet");
-        return;
+            localStorage.setItem('authToken', "dummyToken123");
+            navigate("/connect-wallet");
+            return;
         }
 
         if (!loginValues.email || !loginValues.password) {
-        alert("All fields are required");
-        return;
+            alert("All fields are required");
+            return;
         }
 
-        // If you want, keep your real backend login code here
         try {
-        const res = await fetch('http://localhost:5000/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(loginValues),
-        });
+            const res = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginValues),
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        if (res.ok) {
-            localStorage.setItem('authToken', data.token);
-            // navigate('/dashboard');
-            navigate("/connect-wallet");
-        } else {
-            alert(data.message || "Login failed");
-        }
+            if (res.ok) {
+                localStorage.setItem('authToken', data.token);
+                navigate("/connect-wallet");
+            } else {
+                alert(data.message || "Login failed");
+            }
         } catch (error) {
-        alert("Login error");
+            alert("Login error");
+            console.error("Login error:", error);
         }
+
     };
-
-    
-
 
     const register = async () => {
         const { name, scholarId, email, metamask, password, confirmPassword } = signupValues;
@@ -94,7 +96,7 @@ const LoginSignup = () => {
             }
         } catch (error) {
             alert("Signup error");
-             console.error("Signup error:", error);
+            console.error("Signup error:", error);
         }
     };
 
@@ -137,13 +139,33 @@ const LoginSignup = () => {
                             <img src={user_icon} alt="" />
                             <input type="text" name="metamask" placeholder="Metamask Account" value={signupValues.metamask} onChange={handleSignupChange} required />
                         </div>
-                        <div className="input">
+                        <div className="input password-input">
                             <img src={password_icon} alt="" />
-                            <input type="password" name="password" placeholder="Password" value={signupValues.password} onChange={handleSignupChange} required />
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                placeholder="Password"
+                                value={signupValues.password}
+                                onChange={handleSignupChange}
+                                required
+                            />
+                            <span onClick={() => setShowPassword(!showPassword)} className="eye-icon">
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
                         </div>
-                        <div className="input">
+                        <div className="input password-input">
                             <img src={password_icon} alt="" />
-                            <input type="password" name="confirmPassword" placeholder="Confirm Password" value={signupValues.confirmPassword} onChange={handleSignupChange} required />
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                placeholder="Confirm Password"
+                                value={signupValues.confirmPassword}
+                                onChange={handleSignupChange}
+                                required
+                            />
+                            <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="eye-icon">
+                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
                         </div>
                     </div>
                     <button type="button" onClick={register}>Sign Up</button>
@@ -162,13 +184,22 @@ const LoginSignup = () => {
                             <img src={email_icon} alt="" />
                             <input type="email" name='email' placeholder="Email" value={loginValues.email} onChange={handleLoginChange} required />
                         </div>
-                        <div className="input">
+                        <div className="input password-input">
                             <img src={password_icon} alt="" />
-                            <input type="password" name='password' placeholder="Password" value={loginValues.password} onChange={handleLoginChange} required />
+                            <input
+                                type={showLoginPassword ? "text" : "password"}
+                                name='password'
+                                placeholder="Password"
+                                value={loginValues.password}
+                                onChange={handleLoginChange}
+                                required
+                            />
+                            <span onClick={() => setShowLoginPassword(!showLoginPassword)} className="eye-icon">
+                                {showLoginPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
                         </div>
                     </div>
                     <button type="button" onClick={login}>Log In</button>
-                    
                 </form>
             </div>
 
@@ -190,4 +221,5 @@ const LoginSignup = () => {
         </div>
     );
 };
+
 export default LoginSignup;

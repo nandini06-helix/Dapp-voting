@@ -38,7 +38,7 @@ function Dashboard({ sidebarOpen }) {
 
   return (
     <div className={`dashboard ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-      <h1 className="heading">Welcome to the Dashboard</h1>
+      <h1 className="heading">Candidates List</h1>
 
       <div className={`three-columns ${sidebarOpen ? '' : 'collapsed-gap'}`}>
         {headings.map((title, colIndex) => (
