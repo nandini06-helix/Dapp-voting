@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+ import React, { useState, useEffect } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { useNavigate } from "react-router-dom";
 import VotingABI from "../../abi/Voting.json";
@@ -9,8 +9,14 @@ const predefinedPositions = ["President", "Vice President", "Secretary", "Treasu
 
 export default function AdminPage() {
   const [form, setForm] = useState({
-    name: "", position: "", agenda: "", image: null, imagePreview: null
+    name: "",
+    position: "",
+    agenda: "",
+    image: null,
+    imagePreview: null,
+    electionId: "" // ✅ Added electionId in state
   });
+
   const [times, setTimes] = useState({ start: "", end: "" });
   const [onChainTimes, setOnChainTimes] = useState({ start: null, end: null });
   const [votingStarted, setVotingStarted] = useState(false);
@@ -52,14 +58,15 @@ export default function AdminPage() {
         imagePreview: URL.createObjectURL(file)
       }));
     } else {
-      // Clear preview if file is removed/canceled
       setForm(prev => ({ ...prev, image: null, imagePreview: null }));
     }
   };
 
   const onCandidateSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.position) return alert("Name & Position required.");
+    if (!form.name || !form.position || !form.electionId) {
+      return alert("Name, Position & Election ID required.");
+    }
 
     try {
       const provider = new BrowserProvider(window.ethereum);
@@ -69,11 +76,30 @@ export default function AdminPage() {
       const tx = await contract.addCandidate(form.position, form.name);
       await tx.wait();
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      alert("Candidate added!");
-      setForm({ name: "", position: "", agenda: "", image: null, imagePreview: null });
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("position", form.position);
+      formData.append("agenda", form.agenda);
+      formData.append("image", form.image);
+      formData.append("electionId", form.electionId); // ✅ Use dynamic election ID
+
+      await fetch("http://localhost:5000/api/candidates/add", {
+        method: "POST",
+        body: formData
+      });
+      localStorage.setItem("electionId", form.electionId);
+
+      alert("✅ Candidate added!");
+      setForm({
+        name: "",
+        position: "",
+        agenda: "",
+        image: null,
+        imagePreview: null,
+        electionId: "" // Reset too
+      });
     } catch (err) {
-      console.error("Error adding candidate:", err);
+      console.error("❌ Error adding candidate:", err);
       alert("Failed to add candidate. Please try again.");
     }
   };
@@ -165,6 +191,13 @@ export default function AdminPage() {
         {form.imagePreview && (
           <img src={form.imagePreview} alt="Preview" style={{ width: "120px" }} />
         )}
+        <input
+          type="text"
+          placeholder="Election ID"
+          value={form.electionId}
+          onChange={e => setForm(prev => ({ ...prev, electionId: e.target.value }))}
+          required
+        />
         <button type="submit">Add Candidate</button>
       </form>
 

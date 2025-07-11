@@ -1,4 +1,4 @@
-import './detailedCard.css';
+ import './detailedCard.css';
 
 function DetailedCard({ user, onClose }) {
   return (
@@ -6,26 +6,19 @@ function DetailedCard({ user, onClose }) {
       <button className="close-btn-visible" onClick={onClose}>✖</button>
       <div className="profile-card">
         <div className="avatar-container">
-          <img className="avatar" src={user.image} alt={user.name} />
+          <img className="avatar" src={`http://localhost:5000${user.imageUrl}`} alt={user.name} />
         </div>
         <h1 className="name">{user.name.toUpperCase()}</h1>
-        <h2 className="branch">{user.profession}</h2>
+        <h2 className="branch">{user.position}</h2>
 
         <div className="about-section">
           <h3>ABOUT</h3>
-          <p>
-            I am passionate about building websites and enjoy working on creative projects.
-            I aspire to be a strong developer and love learning new tools and technologies.
-            cdnsbbbmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.
-            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.
-            dgmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-          </p>
+          <p>{user.agenda}</p>  {/*shows actual agenda from backend */}
         </div>
-
-        
       </div>
     </div>
   );
 }
 
 export default DetailedCard;
+

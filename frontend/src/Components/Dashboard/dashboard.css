@@ -1,4 +1,4 @@
-body {
+ body {
   background:  #59b0cd;
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -36,30 +36,44 @@ body {
   width: 100%;
 }
 
-.three-columns {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
+ .three-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 0 20px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
 }
+
 
 .three-columns.collapsed-gap {
   gap: 10px;
 }
 
-.drop_container {
+ .drop_container {
   background-color: #f9fafb;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 300px;
-  max-width: 350px;
-  width: 100%;
-  flex: 1 1 300px;
+  min-height: 400px;        /* ✅ ADD THIS LINE */
+  max-height: 400px;        /* ✅ ADD THIS LINE */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+
+/* Optional: scrollbar style for better look */
+.drop_container::-webkit-scrollbar {
+  width: 6px;
+}
+ .drop_container::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3);
+  border-radius: 8px;
+}
+
+.drop_container::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .column-title {
