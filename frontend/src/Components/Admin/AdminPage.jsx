@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { useNavigate } from "react-router-dom";
 import VotingABI from "../../abi/Voting.json";
@@ -14,13 +14,14 @@ export default function AdminPage() {
     agenda: "",
     image: null,
     imagePreview: null,
-    electionId: "" // ✅ Added electionId in state
+    electionId: ""
   });
 
   const [times, setTimes] = useState({ start: "", end: "" });
   const [onChainTimes, setOnChainTimes] = useState({ start: null, end: null });
   const [votingStarted, setVotingStarted] = useState(false);
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
+  const fileInputRef = useRef(null); // ✅ File input ref
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,12 +82,13 @@ export default function AdminPage() {
       formData.append("position", form.position);
       formData.append("agenda", form.agenda);
       formData.append("image", form.image);
-      formData.append("electionId", form.electionId); // ✅ Use dynamic election ID
+      formData.append("electionId", form.electionId);
 
       await fetch("http://localhost:5000/api/candidates/add", {
         method: "POST",
         body: formData
       });
+
       localStorage.setItem("electionId", form.electionId);
 
       alert("✅ Candidate added!");
@@ -96,8 +98,13 @@ export default function AdminPage() {
         agenda: "",
         image: null,
         imagePreview: null,
-        electionId: "" // Reset too
+        electionId: ""
       });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // ✅ Reset file input
+      }
+
     } catch (err) {
       console.error("❌ Error adding candidate:", err);
       alert("Failed to add candidate. Please try again.");
@@ -186,6 +193,7 @@ export default function AdminPage() {
         <input
           type="file"
           accept="image/*"
+          ref={fileInputRef} // ✅ File input ref assigned
           onChange={onFileChange}
         />
         {form.imagePreview && (

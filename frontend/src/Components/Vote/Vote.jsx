@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import "./vote.css";
 import { BrowserProvider, Contract } from "ethers";
@@ -11,6 +10,8 @@ export default function Vote() {
   const [posts, setPosts] = useState([]);
   const [candidatesMap, setCandidatesMap] = useState({});
   const [votes, setVotes] = useState({});
+  const [votedStatus, setVotedStatus] = useState({});
+  const [hasVotedAny, setHasVotedAny] = useState(false);
   const [current, setCurrent] = useState(0);
   const [isReview, setIsReview] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -40,15 +41,26 @@ export default function Vote() {
 
         setPosts(positions);
         setCandidatesMap(map);
-        setLoading(false);
 
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
         const ownerAddress = await contract.owner();
         setIsAdmin(userAddress.toLowerCase() === ownerAddress.toLowerCase());
+
+        // Check voted status for each position
+        const statusMap = {};
+        let votedAny = false;
+        for (const pos of positions) {
+          const voted = await contract.hasVoted(userAddress, pos);
+          statusMap[pos] = voted;
+          if (voted) votedAny = true;
+        }
+        setVotedStatus(statusMap);
+        setHasVotedAny(votedAny);
       } catch (err) {
         console.error("❌ Failed to fetch voting data:", err);
         alert("❌ Failed to load candidates from blockchain.");
+      } finally {
         setLoading(false);
       }
     };
@@ -57,16 +69,18 @@ export default function Vote() {
   }, [location.pathname]);
 
   const handleVote = (post, candidateId) => {
-    if (isAdmin) return;
+    if (isAdmin || hasVotedAny) return;
     setVotes(prev => ({ ...prev, [post]: candidateId }));
   };
-const next = () => {
-  if (current < posts.length - 1) {
-    setCurrent(current + 1);
-  } else {
-     setIsReview(true);
-   }
- };
+
+  const next = () => {
+    if (current < posts.length - 1) {
+      setCurrent(current + 1);
+    } else {
+      setIsReview(true);
+    }
+  };
+
   const prev = () => {
     if (isReview) {
       setIsReview(false);
@@ -76,6 +90,11 @@ const next = () => {
   };
 
   const handleSubmit = async () => {
+    if (hasVotedAny) {
+      alert("You have already voted.");
+      return;
+    }
+
     try {
       const provider = new BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -101,6 +120,7 @@ const next = () => {
       }
 
       alert("✅ Your vote has been recorded on the blockchain.");
+      window.location.reload(); // Refresh to show voting status
     } catch (err) {
       console.error("❌ Voting failed:", err);
       alert("❌ Voting failed. Check console for details.");
@@ -109,27 +129,18 @@ const next = () => {
 
   if (loading) return <p>Loading voting interface...</p>;
 
-  // if (!loading && posts.length === 0) {
-  //   return (
-  //     <div className="vote-wrapper">
-  //       <div className="vote-box">
-  //         <h2>No candidates have been added yet.</h2>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-if (!loading && posts.length === 0) {
-  return (
-    <div className="vote-wrapper">
-      <div className="vote-box">
-        <div className="no-candidates-message">
-          <h1 className="post-title">Voting</h1>
-          <h2 className="subheading">No candidates have been added yet.</h2>
+  if (!loading && posts.length === 0) {
+    return (
+      <div className="vote-wrapper">
+        <div className="vote-box">
+          <div className="no-candidates-message">
+            <h1 className="post-title">Voting</h1>
+            <h2 className="subheading">No candidates have been added yet.</h2>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="vote-wrapper">
@@ -140,6 +151,10 @@ if (!loading && posts.length === 0) {
         <h2 className="subheading">
           {isReview ? "You voted for:" : "Select your candidate"}
         </h2>
+
+        {hasVotedAny && !isReview && (
+          <p className="info-msg">✅ You have already voted. Voting is disabled.</p>
+        )}
 
         {!isReview ? (
           <form className="candidate-list">
@@ -152,7 +167,7 @@ if (!loading && posts.length === 0) {
                   checked={votes[posts[current]] === c.id}
                   onChange={() => handleVote(posts[current], c.id)}
                   className="vote-radio"
-                  disabled={isAdmin}
+                  disabled={isAdmin || hasVotedAny}
                 />
                 <span className="candidate-name">{c.name}</span>
               </label>
@@ -182,8 +197,12 @@ if (!loading && posts.length === 0) {
             </button>
           ) : (
             !isAdmin && (
-              <button onClick={handleSubmit} className="submit-btn">
-                Submit Vote
+              <button
+                onClick={handleSubmit}
+                className="submit-btn"
+                disabled={hasVotedAny}
+              >
+                {hasVotedAny ? "Vote Submitted" : "Submit Vote"}
               </button>
             )
           )}
