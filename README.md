@@ -46,8 +46,9 @@ A **decentralized voting platform** built using the **MERN stack** and **Ethereu
 ### 🔧 Installation
 
 ```bash
-git clone [https://github.com/your-username/decentralized-voting-system.git](https://github.com/nandini06-helix/Dapp-voting.git)
+git clone https://github.com/nandini06-helix/Dapp-voting.git
 cd Dapp-voting.git
+
 
 ### 🔧 Installation
 
